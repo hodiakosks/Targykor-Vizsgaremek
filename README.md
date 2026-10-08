@@ -1,6 +1,6 @@
-# ShareHub
+# Tárgykör
 
-ShareHub - Tárgykölcsönző Platform Vizsgaremek – Szoftverfejlesztő és -tesztelő szakma  
+Tárgykör - Tárgykölcsönző Platform Vizsgaremek – Szoftverfejlesztő és -tesztelő szakma  
 
 Csapattagok 
 
