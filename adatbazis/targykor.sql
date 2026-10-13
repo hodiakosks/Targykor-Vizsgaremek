@@ -21,7 +21,7 @@ CREATE TABLE `users` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL,
-  `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
+  `is_deleted` tinyint NOT NULL DEFAULT 0,
   UNIQUE KEY `uq_users_email` (`email`),
   UNIQUE KEY `uq_users_username` (`username`)
 );
@@ -75,7 +75,7 @@ CREATE TABLE `products` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL,
-  `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
+  `is_deleted` tinyint NOT NULL DEFAULT 0,
   FOREIGN KEY (`owner_id`) REFERENCES `users`(`id`),
   FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`)
 );
@@ -111,7 +111,7 @@ CREATE TABLE `notifications` (
   `type` varchar(50) NOT NULL,
   `content` varchar(255) NOT NULL,
   `rental_id` int NULL,
-  `is_read` tinyint(1) NOT NULL DEFAULT 0,
+  `is_read` tinyint NOT NULL DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (`users_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
   FOREIGN KEY (`rental_id`) REFERENCES `rentals`(`id`) ON DELETE SET NULL
