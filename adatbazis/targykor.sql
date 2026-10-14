@@ -53,16 +53,14 @@ CREATE TABLE `password_resets` (
   FOREIGN KEY (`users_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 );
 
+DROP TABLE IF EXISTS `login_logs`;
 CREATE TABLE `login_logs` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `users_id` int NULL,
-  `email_tried` varchar(255) NOT NULL,
-  `success` tinyint NOT NULL,
-  `ip_address` varchar(45) NULL,
   `user_agent` varchar(255) NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `logged_in_at` datetime DEFAULT CURRENT_TIMESTAMP
   FOREIGN KEY (`users_id`) REFERENCES `users`(`id`) ON DELETE SET NULL
-);
+);E NGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 CREATE TABLE `categories` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
