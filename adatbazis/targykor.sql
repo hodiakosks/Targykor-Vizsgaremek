@@ -1,3 +1,4 @@
+
 -- adatbázis létrehozása
 
 CREATE DATABASE `targykor` 
@@ -53,14 +54,15 @@ CREATE TABLE `password_resets` (
   FOREIGN KEY (`users_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 );
 
+
 DROP TABLE IF EXISTS `login_logs`;
 CREATE TABLE `login_logs` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `users_id` int NULL,
   `user_agent` varchar(255) NULL,
-  `logged_in_at` datetime DEFAULT CURRENT_TIMESTAMP
+  `logged_in_at` datetime DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (`users_id`) REFERENCES `users`(`id`) ON DELETE SET NULL
-);E NGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+);
 
 CREATE TABLE `categories` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
@@ -159,6 +161,8 @@ CREATE TABLE `complaints` (
   FOREIGN KEY (`resolved_by`) REFERENCES `users`(`id`) ON DELETE SET NULL
 );
 
+
+
 CREATE TABLE `notifications` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `users_id` int NOT NULL,
@@ -191,3 +195,93 @@ CREATE TABLE `reviews` (
   CONSTRAINT `chk_reviews_rating` CHECK (`rating` BETWEEN 1 AND 5),
   FOREIGN KEY (`rental_id`) REFERENCES `rentals`(`id`)
 );
+
+
+-- eljárások:
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS createUser$$
+CREATE PROCEDURE createUser(
+  IN usernameIN VARCHAR(100),
+  IN first_nameIN VARCHAR(50),
+  IN last_nameIN VARCHAR(50),
+  IN emailIN VARCHAR(255),
+  IN phone_numberIN VARCHAR(50),
+  IN passwordIN VARCHAR(255)
+)
+BEGIN
+  INSERT INTO users (username, first_name, last_name, email, phone_number, password)
+  VALUES (usernameIN, first_nameIN, last_nameIN, emailIN, phone_numberIN, passwordIN);
+
+  SELECT LAST_INSERT_ID() AS new_user_id;
+END$$
+
+DROP PROCEDURE IF EXISTS getAllUser$$
+CREATE PROCEDURE getAllUser()
+BEGIN
+  SELECT id, username, first_name, last_name, email, phone_number,
+         role, last_login, created_at
+  FROM users
+  WHERE is_deleted = 0
+  ORDER BY created_at DESC;
+END$$
+
+DROP PROCEDURE IF EXISTS getUserById$$
+CREATE PROCEDURE getUserById(IN idIN INT)
+BEGIN
+  SELECT id, username, first_name, last_name, email, phone_number,
+         role, email_verified_at, last_login, created_at
+  FROM users
+  WHERE id = idIN AND is_deleted = 0;
+END$$
+
+DROP PROCEDURE IF EXISTS getUserByEmail$$
+CREATE PROCEDURE getUserByEmail(IN emailIN VARCHAR(255))
+BEGIN
+  SELECT id, username, email, password, role, failed_login_attempts, locked_until, email_verified_at
+  FROM users
+  WHERE email = emailIN AND is_deleted = 0;
+END$$
+
+DROP PROCEDURE IF EXISTS updateUser$$
+CREATE PROCEDURE update_user(
+  IN idIN INT,
+  IN usernameIN VARCHAR(100),
+  IN first_nameIN VARCHAR(50),
+  IN last_nameIN VARCHAR(50),
+  IN emailIN VARCHAR(255),
+  IN phone_numberIN VARCHAR(50)
+)
+BEGIN
+  UPDATE users
+  SET email_verified_at = IF(email != emailIN, NULL, email_verified_at),
+      username     = usernameIN,
+      first_name   = first_nameIN,
+      last_name    = last_nameIN,
+      email        = emailIN,
+      phone_number = phone_numberIN
+  WHERE id = idIN AND is_deleted = 0;
+
+  SELECT ROW_COUNT() AS affected_rows;
+END$$
+
+DROP PROCEDURE IF EXISTS countActiveRentalByUser$$
+CREATE PROCEDURE count_active_rental_by_user(IN idIN INT)
+BEGIN
+  SELECT COUNT(*) AS active_count
+  FROM rentals
+  JOIN products ON products.id = rentals.product_id
+  WHERE (rentals.users_id = idIN OR products.owner_id = idIN)
+    AND rentals.status IN ('pending', 'approved', 'active');
+END$$
+
+DROP PROCEDURE IF EXISTS softDeleteUser$$
+CREATE PROCEDURE soft_delete_user(IN idIN INT)
+BEGIN
+  UPDATE users
+  SET is_deleted = 1,
+      deleted_at = NOW()
+  WHERE id = idIN;
+END$$
+
+DELIMITER ;
